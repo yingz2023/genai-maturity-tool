@@ -21,8 +21,8 @@ interface EmailRecord {
   message: string
 }
 
-// Use /tmp directory which is writable on most systems
-const DATA_DIR = path.join(process.cwd(), '.data')
+// Use /tmp directory which is writable on Vercel and most serverless platforms
+const DATA_DIR = path.join('/tmp', 'genai-data')
 const ASSESSMENTS_FILE = path.join(DATA_DIR, 'assessments.json')
 const EMAILS_FILE = path.join(DATA_DIR, 'emails.json')
 
