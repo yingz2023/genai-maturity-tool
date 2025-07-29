@@ -83,6 +83,36 @@ export default function TypingTool() {
     }
   };
 
+  const handleSubmitData = async () => {
+    try {
+      const submissionData = {
+        responses,
+        email: email || undefined,
+        score,
+        maturityLevel: level
+      };
+
+      const response = await fetch('/api/submit-assessment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData)
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert(`Results saved successfully! ${email ? `Confirmation sent to ${email}` : ''}`);
+      } else {
+        alert('Error saving results. Please try again.');
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      alert('Error saving results. Please try again.');
+    }
+  };
+
   const score =
     Object.values(responses).reduce((a, b) => a + b, 0) /
     Object.keys(responses).length;
@@ -202,7 +232,7 @@ export default function TypingTool() {
                 className="flex-1"
               />
               <Button 
-                onClick={() => alert(`Results would be sent to: ${email}`)}
+                onClick={handleSubmitData}
                 disabled={!email}
               >
                 Send Results
