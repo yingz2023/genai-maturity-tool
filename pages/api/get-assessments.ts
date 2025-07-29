@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getAssessments } from '@/lib/database'
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,7 +9,15 @@ export default async function handler(
   }
 
   try {
-    const assessments = await getAssessments()
+    let assessments
+    try {
+      const { getAssessments } = await import('@/lib/database')
+      assessments = await getAssessments()
+    } catch (kvError) {
+      console.warn('KV storage failed, using fallback:', kvError)
+      const { getAssessmentsFallback } = await import('@/lib/database')
+      assessments = await getAssessmentsFallback()
+    }
     
     // Calculate summary statistics
     const summary = {

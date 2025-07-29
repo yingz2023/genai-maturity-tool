@@ -31,6 +31,10 @@ export default async function handler(
       return res.status(400).json({ success: false, message: 'Responses are required' })
     }
 
+    if (!score || !maturityLevel) {
+      return res.status(400).json({ success: false, message: 'Score and maturity level are required' })
+    }
+
     // Create submission data
     const submissionData: AssessmentData = {
       responses,
@@ -41,9 +45,16 @@ export default async function handler(
       userAgent: req.headers['user-agent']
     }
 
-    // Save to database
-    const { saveAssessment } = await import('@/lib/database')
-    const id = await saveAssessment(submissionData)
+    // Try to save to database with fallback
+    let id: string
+    try {
+      const { saveAssessment } = await import('@/lib/database')
+      id = await saveAssessment(submissionData)
+    } catch (kvError) {
+      console.warn('KV storage failed, using fallback:', kvError)
+      const { saveAssessmentFallback } = await import('@/lib/database')
+      id = await saveAssessmentFallback(submissionData)
+    }
     
     return res.status(200).json({ 
       success: true, 
@@ -55,7 +66,7 @@ export default async function handler(
     console.error('Submission error:', error)
     return res.status(500).json({ 
       success: false, 
-      message: 'Internal server error' 
+      message: 'Failed to save assessment. Please try again.' 
     })
   }
 }
