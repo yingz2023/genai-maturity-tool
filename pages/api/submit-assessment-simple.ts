@@ -45,7 +45,7 @@ export default async function handler(
       userAgent: req.headers['user-agent']
     }
 
-    // Use simple storage (works without KV)
+    // Save using simple storage
     const { saveAssessmentSimple, sendEmailResults } = await import('@/lib/database-simple')
     const id = await saveAssessmentSimple(submissionData)
     
@@ -74,9 +74,4 @@ export default async function handler(
       message: 'Failed to save assessment. Please try again.' 
     })
   }
-}
-
-function generateId(): string {
-  return Math.random().toString(36).substring(2, 15) + 
-         Math.random().toString(36).substring(2, 15)
 } 

@@ -92,6 +92,8 @@ export default function TypingTool() {
         maturityLevel: level
       };
 
+      console.log('Submitting data:', submissionData); // Debug log
+
       const response = await fetch('/api/submit-assessment', {
         method: 'POST',
         headers: {
@@ -100,16 +102,25 @@ export default function TypingTool() {
         body: JSON.stringify(submissionData)
       });
 
+      console.log('Response status:', response.status); // Debug log
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const result = await response.json();
+      console.log('API result:', result); // Debug log
       
       if (result.success) {
-        alert(`Results saved successfully! ${email ? `Confirmation sent to ${email}` : ''}`);
+        alert(result.message || `Results saved successfully! ${email ? `Confirmation sent to ${email}` : ''}`);
       } else {
-        alert('Error saving results. Please try again.');
+        console.error('API returned error:', result);
+        alert(result.message || 'Error saving results. Please try again.');
       }
     } catch (error) {
       console.error('Submission error:', error);
-      alert('Error saving results. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      alert(`Error saving results: ${errorMessage}. Please try again.`);
     }
   };
 

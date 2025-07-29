@@ -9,15 +9,9 @@ export default async function handler(
   }
 
   try {
-    let assessments
-    try {
-      const { getAssessments } = await import('@/lib/database')
-      assessments = await getAssessments()
-    } catch (kvError) {
-      console.warn('KV storage failed, using fallback:', kvError)
-      const { getAssessmentsFallback } = await import('@/lib/database')
-      assessments = await getAssessmentsFallback()
-    }
+    // Use simple storage (works without KV)
+    const { getAssessmentsSimple } = await import('@/lib/database-simple')
+    const assessments = await getAssessmentsSimple()
     
     // Calculate summary statistics
     const summary = {
